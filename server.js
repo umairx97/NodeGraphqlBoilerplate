@@ -1,0 +1,55 @@
+const express = require('express');
+const cors = require('cors');
+const { ApolloServer } = require('apollo-server-express')
+const app = express();
+const mongoose = require('mongoose');
+const { mergeTypes, mergeResolvers } = require('merge-graphql-schemas');
+require('dotenv').config()
+
+
+// Creating App Unified Structure
+app.models = {};
+app.graphql = {};
+app.graphql.typeDefs = [];
+app.graphql.resolvers = [];
+
+
+// Require Modules
+require('./config')(app);
+require('./db')(app, mongoose);
+require('./models')(app, mongoose);
+require('./modules')(app, mongoose);
+
+// Creating Apollo server with all type definitions and resolvers
+const typeDefs = app.graphql.typeDefs;
+const resolvers = app.graphql.resolvers;
+
+const GRAPHQL_PLAYGROUND_CONFIG = {
+    folderName: 'Graphql',
+    settings: {
+        'editor.cursorShape': 'line',
+        'editor.fontSize': 14,
+        'editor.reuseHeaders': true,
+        'editor.theme': 'dark'
+    }
+};
+
+const GqlServer = new ApolloServer({
+    playground: process.env.NODE_ENV === 'production' ? false : GRAPHQL_PLAYGROUND_CONFIG,
+    typeDefs: mergeTypes(typeDefs),
+    resolvers: mergeResolvers(resolvers)
+})
+
+app.get("/data", (req, res) => {
+    res.send({ username: "umair" })
+})
+
+
+app.use(cors());
+GqlServer.applyMiddleware({ app });
+
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`🚀 Server is running on port ${PORT}${GqlServer.graphqlPath}`)
+})
