@@ -7,8 +7,10 @@ const { mergeTypes, mergeResolvers } = require('merge-graphql-schemas');
 require('dotenv').config()
 
 
+// Creating Server
 const app = express();
 const httpServer = http.createServer(app)
+
 // Creating App Unified Structure
 app.models = {};
 app.graphql = {};
@@ -26,18 +28,8 @@ require('./modules')(app, mongoose);
 const typeDefs = app.graphql.typeDefs;
 const resolvers = app.graphql.resolvers;
 
-const GRAPHQL_PLAYGROUND_CONFIG = {
-    folderName: 'Graphql',
-    settings: {
-        'editor.cursorShape': 'line',
-        'editor.fontSize': 14,
-        'editor.reuseHeaders': true,
-        'editor.theme': 'dark'
-    }
-};
-
 const GqlServer = new ApolloServer({
-    playground: process.env.NODE_ENV === 'production' ? false : GRAPHQL_PLAYGROUND_CONFIG,
+    playground: process.env.NODE_ENV === 'production' ? false : true,
     typeDefs: mergeTypes(typeDefs),
     resolvers: mergeResolvers(resolvers)
 })
@@ -45,7 +37,6 @@ const GqlServer = new ApolloServer({
 app.get("/data", (req, res) => {
     res.send({ username: "umair" })
 })
-
 
 app.use(cors());
 GqlServer.applyMiddleware({ app });

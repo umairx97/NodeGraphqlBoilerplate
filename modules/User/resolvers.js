@@ -1,7 +1,5 @@
 exports = module.exports = function (app, mongoose) {
 
-    const { SHA256 } = require('crypto-js')
-    const jwt = require('jsonwebtoken');
     const { PubSub } = require("apollo-server-express")
     const pubSub = new PubSub();
 
