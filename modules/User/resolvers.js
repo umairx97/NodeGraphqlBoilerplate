@@ -2,14 +2,13 @@ exports = module.exports = function (app, mongoose) {
 
     const { SHA256 } = require('crypto-js')
     const jwt = require('jsonwebtoken');
-    const {
-        UserInputError,
-        AuthenticationError,
-        ForbiddenError } = require("apollo-server-express")
-
+    const { PubSub } = require("apollo-server-express")
+    const pubSub = new PubSub();
 
     const UserModel = app.db.models.User;
-
+    const UserEvents = {
+        USER_ADDED: "USER_ADDED"
+    }
 
     const resolvers = {
 
@@ -40,6 +39,7 @@ exports = module.exports = function (app, mongoose) {
                         throw new Error("Cannot Save User")
                     }
 
+                    pubSub.publish(UserEvents.USER_ADDED, { userAdded: newUser })
                     return newUser;
 
                 } catch (err) {
@@ -48,6 +48,12 @@ exports = module.exports = function (app, mongoose) {
 
             }
 
+        },
+
+        Subscription: {
+            userAdded: {
+                subscribe: () => pubSub.asyncIterator(UserEvents.USER_ADDED),
+            }
         }
     }
 

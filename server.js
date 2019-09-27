@@ -1,12 +1,14 @@
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const { ApolloServer } = require('apollo-server-express')
-const app = express();
 const mongoose = require('mongoose');
 const { mergeTypes, mergeResolvers } = require('merge-graphql-schemas');
 require('dotenv').config()
 
 
+const app = express();
+const httpServer = http.createServer(app)
 // Creating App Unified Structure
 app.models = {};
 app.graphql = {};
@@ -47,9 +49,10 @@ app.get("/data", (req, res) => {
 
 app.use(cors());
 GqlServer.applyMiddleware({ app });
+GqlServer.installSubscriptionHandlers(httpServer)
 
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}${GqlServer.graphqlPath}`)
 })

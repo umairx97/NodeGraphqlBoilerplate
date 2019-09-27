@@ -24,6 +24,10 @@ exports = module.exports = function (app, mongoose) {
                 username: String!
             ):User
         }
+
+        type Subscription {
+            userAdded: User
+        }
     `
 
     app.graphql.typeDefs.push(typeDefs)
